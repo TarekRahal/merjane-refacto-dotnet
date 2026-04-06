@@ -3,7 +3,7 @@ using Refacto.DotNet.Controllers.Entities;
 
 namespace Refacto.DotNet.Controllers.Services.Impl
 {
-    public class ProductService
+    public class ProductService : IProductService
     {
         private readonly INotificationService _ns;
         private readonly AppDbContext _ctx;

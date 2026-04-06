@@ -63,7 +63,7 @@ namespace Refacto.Dotnet.Controllers.Tests.Controllers
             _context.ChangeTracker.Clear();
 
             HttpResponseMessage response = await client.PostAsync($"/orders/{order.Id}/processOrder", null);
-            _ = response.EnsureSuccessStatusCode();
+            Assert.True(response.IsSuccessStatusCode);
 
             Order? resultOrder = await _context.Orders.FindAsync(order.Id);
             Assert.Equal(resultOrder.Id, order.Id);
