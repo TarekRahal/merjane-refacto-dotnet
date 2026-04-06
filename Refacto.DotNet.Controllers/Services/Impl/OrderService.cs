@@ -25,47 +25,47 @@ namespace Refacto.DotNet.Controllers.Services.Impl
 
             foreach (Entities.Product p in products)
             {
-                if (p.Type == Entities.Product.ProductType.NORMAL)
+                switch (p.Type)
                 {
-                    if (p.Available > 0)
-                    {
-                        p.Available -= 1;
-                        _ctx.Entry(p).State = EntityState.Modified;
-                        _ = _ctx.SaveChanges();
-
-                    }
-                    else
-                    {
-                        int leadTime = p.LeadTime;
-                        if (leadTime > 0)
+                    case Entities.Product.ProductType.NORMAL:
+                        if (p.Available > 0)
                         {
-                            _ps.NotifyDelay(leadTime, p);
+                            p.Available -= 1;
+                            _ctx.Entry(p).State = EntityState.Modified;
+                            _ = _ctx.SaveChanges();
+
                         }
-                    }
-                }
-                else if (p.Type == Entities.Product.ProductType.NORMAL)
-                {
-                    if (DateTime.Now.Date > p.SeasonStartDate && DateTime.Now.Date < p.SeasonEndDate && p.Available > 0)
-                    {
-                        p.Available -= 1;
-                        _ = _ctx.SaveChanges();
-                    }
-                    else
-                    {
-                        _ps.HandleSeasonalProduct(p);
-                    }
-                }
-                else if (p.Type == Entities.Product.ProductType.EXPIRABLE)
-                {
-                    if (p.Available > 0 && p.ExpiryDate > DateTime.Now.Date)
-                    {
-                        p.Available -= 1;
-                        _ = _ctx.SaveChanges();
-                    }
-                    else
-                    {
-                        _ps.HandleExpiredProduct(p);
-                    }
+                        else
+                        {
+                            int leadTime = p.LeadTime;
+                            if (leadTime > 0)
+                            {
+                                _ps.NotifyDelay(leadTime, p);
+                            }
+                        }
+                        break;
+                    case Entities.Product.ProductType.SEASONAL:
+                        if (DateTime.Now.Date > p.SeasonStartDate && DateTime.Now.Date < p.SeasonEndDate && p.Available > 0)
+                        {
+                            p.Available -= 1;
+                            _ = _ctx.SaveChanges();
+                        }
+                        else
+                        {
+                            _ps.HandleSeasonalProduct(p);
+                        }
+                        break;
+                    case  Entities.Product.ProductType.EXPIRABLE:
+                        if (p.Available > 0 && p.ExpiryDate > DateTime.Now.Date)
+                        {
+                            p.Available -= 1;
+                            _ = _ctx.SaveChanges();
+                        }
+                        else
+                        {
+                            _ps.HandleExpiredProduct(p);
+                        }
+                        break;
                 }
             }
             return order.Id;
