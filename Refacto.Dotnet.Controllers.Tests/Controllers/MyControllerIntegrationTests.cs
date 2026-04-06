@@ -14,6 +14,7 @@ namespace Refacto.Dotnet.Controllers.Tests.Controllers
         private readonly WebApplicationFactory<Program> _factory;
         private readonly AppDbContext _context;
         private readonly Mock<INotificationService> _mockNotificationService;
+        private static readonly DateTime _now = DateTime.Now;
 
         public MyControllerIntegrationTests(WebApplicationFactory<Program> factory)
         {
@@ -64,6 +65,9 @@ namespace Refacto.Dotnet.Controllers.Tests.Controllers
 
             HttpResponseMessage response = await client.PostAsync($"/orders/{order.Id}/processOrder", null);
             Assert.True(response.IsSuccessStatusCode);
+            _mockNotificationService.Verify(service => service.SendDelayNotification(10, "USB Dongle"), Times.Once());
+            _mockNotificationService.Verify(service => service.SendExpirationNotification("Milk", _now.AddDays(-2)), Times.Once());
+            _mockNotificationService.Verify(service => service.SendOutOfStockNotification("Grapes"), Times.Once());
 
             Order? resultOrder = await _context.Orders.FindAsync(order.Id);
             Assert.Equal(resultOrder.Id, order.Id);
@@ -80,10 +84,10 @@ namespace Refacto.Dotnet.Controllers.Tests.Controllers
             {
                 new Product { LeadTime = 15, Available = 30, Type = Product.ProductType.NORMAL, Name = "USB Cable" },
                 new Product { LeadTime = 10, Available = 0, Type = Product.ProductType.NORMAL, Name = "USB Dongle" },
-                new Product { LeadTime = 15, Available = 30, Type = Product.ProductType.EXPIRABLE, Name = "Butter", ExpiryDate = DateTime.Now.AddDays(26) },
-                new Product { LeadTime = 90, Available = 6, Type = Product.ProductType.EXPIRABLE, Name = "Milk", ExpiryDate = DateTime.Now.AddDays(-2) },
-                new Product { LeadTime = 15, Available = 30, Type = Product.ProductType.SEASONAL, Name = "Watermelon", SeasonStartDate = DateTime.Now.AddDays(-2), SeasonEndDate = DateTime.Now.AddDays(58) },
-                new Product { LeadTime = 15, Available = 30, Type = Product.ProductType.SEASONAL, Name = "Grapes", SeasonStartDate = DateTime.Now.AddDays(180), SeasonEndDate = DateTime.Now.AddDays(240) }
+                new Product { LeadTime = 15, Available = 30, Type = Product.ProductType.EXPIRABLE, Name = "Butter", ExpiryDate = _now.AddDays(26) },
+                new Product { LeadTime = 90, Available = 6, Type = Product.ProductType.EXPIRABLE, Name = "Milk", ExpiryDate = _now.AddDays(-2) },
+                new Product { LeadTime = 15, Available = 30, Type = Product.ProductType.SEASONAL, Name = "Watermelon", SeasonStartDate = _now.AddDays(-2), SeasonEndDate = _now.AddDays(58) },
+                new Product { LeadTime = 15, Available = 30, Type = Product.ProductType.SEASONAL, Name = "Grapes", SeasonStartDate = _now.AddDays(180), SeasonEndDate = _now.AddDays(240) }
             };
         }
     }

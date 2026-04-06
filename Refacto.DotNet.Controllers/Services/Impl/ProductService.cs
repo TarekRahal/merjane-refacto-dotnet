@@ -14,29 +14,32 @@ namespace Refacto.DotNet.Controllers.Services.Impl
             _ctx = ctx;
         }
 
-        public void NotifyDelay(int leadTime, Product p)
-        {
-            p.LeadTime = leadTime;
-            _ = _ctx.SaveChanges();
-            _ns.SendDelayNotification(leadTime, p.Name);
-        }
-
         public void HandleSeasonalProduct(Product p)
         {
-            if (DateTime.Now.AddDays(p.LeadTime) > p.SeasonEndDate)
+            if (p.Available > 0)
             {
-                _ns.SendOutOfStockNotification(p.Name);
-                p.Available = 0;
-                _ = _ctx.SaveChanges();
-            }
-            else if (p.SeasonStartDate > DateTime.Now)
-            {
-                _ns.SendOutOfStockNotification(p.Name);
-                _ = _ctx.SaveChanges();
+                if (DateTime.Now.Date > p.SeasonStartDate && DateTime.Now.Date < p.SeasonEndDate)
+                {
+                    p.Available -= 1;
+                    _ = _ctx.SaveChanges();
+                }
+                else
+                {
+                    _ns.SendOutOfStockNotification(p.Name);
+                }
             }
             else
             {
-                NotifyDelay(p.LeadTime, p);
+                if (DateTime.Now.AddDays(p.LeadTime) > p.SeasonEndDate)
+                {
+                    _ns.SendOutOfStockNotification(p.Name);
+                    p.Available = 0;
+                    _ = _ctx.SaveChanges();
+                }
+                else
+                {
+                    _ns.SendDelayNotification(p.LeadTime, p.Name);
+                }
             }
         }
 
@@ -52,6 +55,19 @@ namespace Refacto.DotNet.Controllers.Services.Impl
                 _ns.SendExpirationNotification(p.Name, (DateTime)p.ExpiryDate);
                 p.Available = 0;
                 _ = _ctx.SaveChanges();
+            }
+        }
+
+        public void HandleNormalProduct(Product p)
+        {
+            if (p.Available > 0)
+            {
+                p.Available -= 1;
+                _ = _ctx.SaveChanges();
+            }
+            else
+            {
+                _ns.SendDelayNotification(p.LeadTime, p.Name);
             }
         }
     }
