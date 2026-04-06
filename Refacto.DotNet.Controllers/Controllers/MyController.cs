@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Refacto.DotNet.Controllers.Database.Context;
 using Refacto.DotNet.Controllers.Dtos.Product;
+using Refacto.DotNet.Controllers.Entities;
 using Refacto.DotNet.Controllers.Services;
 
 namespace Refacto.DotNet.Controllers.Controllers
@@ -32,7 +33,7 @@ namespace Refacto.DotNet.Controllers.Controllers
 
             foreach (Entities.Product p in products)
             {
-                if (p.Type == "NORMAL")
+                if (p.Type == Product.ProductType.NORMAL)
                 {
                     if (p.Available > 0)
                     {
@@ -50,7 +51,7 @@ namespace Refacto.DotNet.Controllers.Controllers
                         }
                     }
                 }
-                else if (p.Type == "SEASONAL")
+                else if (p.Type == Product.ProductType.NORMAL)
                 {
                     if (DateTime.Now.Date > p.SeasonStartDate && DateTime.Now.Date < p.SeasonEndDate && p.Available > 0)
                     {
@@ -62,7 +63,7 @@ namespace Refacto.DotNet.Controllers.Controllers
                         _ps.HandleSeasonalProduct(p);
                     }
                 }
-                else if (p.Type == "EXPIRABLE")
+                else if (p.Type == Product.ProductType.EXPIRABLE)
                 {
                     if (p.Available > 0 && p.ExpiryDate > DateTime.Now.Date)
                     {

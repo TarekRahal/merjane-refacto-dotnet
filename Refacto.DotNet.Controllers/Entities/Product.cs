@@ -18,7 +18,7 @@ namespace Refacto.DotNet.Controllers.Entities
         public int Available { get; set; }
 
         [Column("type")]
-        public string? Type { get; set; }
+        public ProductType? Type { get; set; }
 
         [Column("name")]
         public string? Name { get; set; }
@@ -31,5 +31,13 @@ namespace Refacto.DotNet.Controllers.Entities
 
         [Column("season_end_date")]
         public DateTime? SeasonEndDate { get; set; }
+
+        public enum ProductType
+        {
+            NORMAL,
+            SEASONAL,
+            EXPIRABLE
+        }
+
     }
 }

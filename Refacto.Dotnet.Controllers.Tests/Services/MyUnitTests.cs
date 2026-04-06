@@ -32,7 +32,7 @@ namespace Refacto.DotNet.Controllers.Tests.Services
             {
                 LeadTime = 15,
                 Available = 0,
-                Type = "NORMAL",
+                Type = Product.ProductType.NORMAL,
                 Name = "RJ45 Cable"
             };
 
